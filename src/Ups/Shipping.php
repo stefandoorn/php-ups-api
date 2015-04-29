@@ -89,7 +89,7 @@ class Shipping extends Ups
         $request->appendChild($node);
 
         $request->appendChild($xml->createElement('RequestAction', 'ShipConfirm'));
-        $request->appendChild($xml->createElement('RequestOption', $validation ? : ''));
+        $request->appendChild($xml->createElement('RequestOption', $validation ? : 'nonvalidate'));
 
         // Page 47
         $shipmentNode = $container->appendChild($xml->createElement('Shipment'));
@@ -172,7 +172,7 @@ class Shipping extends Ups
         if (isset($shipment->ShipFrom)) {
             $shipFromNode = $shipmentNode->appendChild($xml->createElement('ShipFrom'));
 
-            $shipFromNode->appendChild($xml->createElement('CompanyName', $shipment->ShipFrom->CompanyName));
+            $shipFromNode->appendChild($xml->createElement('CompanyName', $shipment->ShipFrom->getCompanyName()));
 
             if (isset($shipment->ShipFrom->AttentionName)) {
                 $shipFromNode->appendChild($xml->createElement('AttentionName', $shipment->ShipFrom->AttentionName));
@@ -279,7 +279,7 @@ class Shipping extends Ups
         }
 
         $serviceNode = $shipmentNode->appendChild($xml->createElement('Service'));
-        $serviceNode->appendChild($xml->createElement('Code', $shipment->Service->Code));
+        $serviceNode->appendChild($xml->createElement('Code', $shipment->Service->getCode()));
 
         if (isset($shipment->Service->Description)) {
             $serviceNode->appendChild($xml->createElement('Description', $shipment->Service->Description));
@@ -304,7 +304,7 @@ class Shipping extends Ups
             $node->appendChild($xml->createElement('NegotiatedRatesIndicator'));
         }
 
-        foreach ($shipment->Package as &$package) {
+        foreach ($shipment->getPackages() as &$package) {
             $node = $shipmentNode->appendChild($xml->createElement('Package'));
 
             $ptNode = $node->appendChild($xml->createElement('PackagingType'));
@@ -394,7 +394,6 @@ class Shipping extends Ups
                 $node->appendChild($xml->createElement('Description', $receiptSpecOpts->ImageFormat->Description));
             }
         }
-
         return $xml->saveXML();
     }
 
@@ -438,7 +437,7 @@ class Shipping extends Ups
         $request->appendChild($node);
 
         $request->appendChild($xml->createElement('RequestAction', 'ShipAccept'));
-        $container->appendChild($xml->createElement('ShipmentDigest', $shipmentDigest));
+        $container->appendChild($xml->createElement('ShipmentDigest', $shipmentDigest->ShipmentDigest));
 
         return $xml->saveXML();
     }
