@@ -308,6 +308,10 @@ class Shipping extends Ups
         foreach ($shipment->getPackages() as &$package) {
             $node = $shipmentNode->appendChild($xml->createElement('Package'));
 
+            if(isset($package->Description)) {
+                $node->appendChild($xml->createElement('Description', $package->Description));
+            }
+
             $ptNode = $node->appendChild($xml->createElement('PackagingType'));
             $ptNode->appendChild($xml->createElement('Code', $package->PackagingType->Code));
 
