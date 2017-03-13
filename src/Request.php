@@ -116,6 +116,12 @@ class Request implements RequestInterface, LoggerAwareInterface
                         'Accept-Charset' => 'UTF-8',
                     ],
                     'http_errors' => true,
+                    'verify' => false,
+                                                         'curl' =>
+                                                              [
+                                                                               CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1,
+                                                                                //CURLOPT_SSL_CIPHER_LIST => CURL_SSLVERSION_SSLv3,
+                                                                          ],
                 ]
             );
 

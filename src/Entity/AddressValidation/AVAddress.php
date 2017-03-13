@@ -1,5 +1,9 @@
 <?php namespace Ups\Entity\AddressValidation;
 
+/**
+ * Class AVAddress
+ * @package Ups\Entity\AddressValidation
+ */
 class AVAddress
 {
     /**
