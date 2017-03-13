@@ -22,6 +22,11 @@ class Package implements NodeInterface
     /**
      * @var string
      */
+    private $packageIdentifier;
+
+    /**
+     * @var string
+     */
     private $qValue;
 
     /**
@@ -64,6 +69,7 @@ class Package implements NodeInterface
 
         // Then the required values
         $node->appendChild($this->getPackageWeight()->toNode($document));
+        $node->appendChild($document->createElement('PackageIdentifier', $this->getPackageIdentifier()));
 
         // Then the optional values
         if ($this->getQValue() !== null) {
@@ -185,5 +191,45 @@ class Package implements NodeInterface
     public function setEmergencyContact($emergencyContact)
     {
         $this->emergencyContact = $emergencyContact;
+    }
+
+    /**
+     * @return array|ChemicalRecord[]
+     */
+    public function getChemicalRecords()
+    {
+        return $this->chemicalRecords;
+    }
+
+    /**
+     * @param array|ChemicalRecord[] $chemicalRecords
+     */
+    public function setChemicalRecords($chemicalRecords)
+    {
+        $this->chemicalRecords = $chemicalRecords;
+    }
+
+    /**
+     * @param ChemicalRecord $chemicalRecord
+     */
+    public function addChemicalRecord(ChemicalRecord $chemicalRecord)
+    {
+        $this->chemicalRecords[] = $chemicalRecord;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPackageIdentifier()
+    {
+        return $this->packageIdentifier;
+    }
+
+    /**
+     * @param string $packageIdentifier
+     */
+    public function setPackageIdentifier($packageIdentifier)
+    {
+        $this->packageIdentifier = $packageIdentifier;
     }
 }

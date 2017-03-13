@@ -68,10 +68,9 @@ class DangerousGoods extends Ups
      * @return SimpleXmlElement
      * @throws Exception
      */
-    public function getLandedCosts(LandedCostRequest $request)
+    public function getAuditPreCheck(AcceptanceAuditPreCheckRequest $request)
     {
         $request = $this->createRequestAcceptanceAuditPreCheck($request);
-
 
         $response = $this->sendRequest(
             $request, self::ENDPOINT_DANGEROUS_GOODS_UTILITY,
@@ -99,16 +98,13 @@ class DangerousGoods extends Ups
         $xml = new DOMDocument();
         $xml->formatOutput = true;
 
-        $preAuditRequest = $xml->appendChild($xml->createElement('ProcessAcceptanceAuditPreCheck'));
+        $preAuditRequest = $xml->appendChild($xml->createElement('AcceptanceAuditPreCheckRequest'));
         $preAuditRequest->setAttribute('xml:lang', 'en-US');
 
         $request = $preAuditRequest->appendChild($xml->createElement('Request'));
+        $request->appendChild($xml->importNode($this->createTransactionNode(), true));
 
-        $node = $xml->importNode($this->createTransactionNode(), true);
-        $request->appendChild($node);
-
-        $request->appendChild($xml->createElement('RequestAction', 'ProcessAcceptanceAuditPreCheck'));
-        $preAuditRequest->appendChild($acceptanceAuditPreCheckRequest->toNode($xml));
+        $preAuditRequest->appendChild($acceptanceAuditPreCheckRequest->getShipment()->toNode($xml));
 
         return $xml->saveXML();
     }

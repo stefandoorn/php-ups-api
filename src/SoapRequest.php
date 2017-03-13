@@ -93,7 +93,7 @@ class SoapRequest implements RequestInterface, LoggerAwareInterface
             'soap_version' => 'SOAP_1_1',
             'trace' => 1,
             'connection_timeout' => 2,
-            'cache_wsdl' => WSDL_CACHE_BOTH,
+            'cache_wsdl' => WSDL_CACHE_NONE,
         );
 
         // Initialize soap client
@@ -101,11 +101,27 @@ class SoapRequest implements RequestInterface, LoggerAwareInterface
 
         // Set endpoint URL + auth & request data
         $client->__setLocation($endpointurl);
-        $auth = (array)new SimpleXMLElement($access);
-        $request = (array)new SimpleXMLElement($request);
+        if (!is_array($request)) {
+            $request = (array)new SimpleXMLElement($request);
+        }
 
         // Build auth header
-        $header = new \SoapHeader('http://www.ups.com/schema/xpci/1.0/auth', 'AccessRequest', $auth);
+        $auth = (array)new SimpleXMLElement($access);
+        if ($wsdl === 'DangerousGoodsUtility') {
+            $auth = [
+                'UsernameToken' => [
+                    'Username' => $auth['UserId'],
+                    'Password' => $auth['Password'],
+                ],
+                'ServiceAccessToken' => [
+                    'AccessLicenseNumber' => $auth['AccessLicenseNumber'],
+                ]
+            ];
+
+            $header = new \SoapHeader('http://www.ups.com/XMLSchema/XOLTWS/UPSS/v1.0', 'USPSecurity', $auth);
+        } else {
+            $header = new \SoapHeader('http://www.ups.com/schema/xpci/1.0/auth', 'AccessRequest', $auth);
+        }
         $client->__setSoapHeaders($header);
 
         // Log request
@@ -123,7 +139,7 @@ class SoapRequest implements RequestInterface, LoggerAwareInterface
 
         // Perform call and get response
         try {
-            $request = json_decode(json_encode((array)$request), true);
+            $request = json_decode(json_encode($request), true);
             $client->__soapCall($operation, [$request]);
             $body = $client->__getLastResponse();
 
@@ -145,9 +161,19 @@ class SoapRequest implements RequestInterface, LoggerAwareInterface
         } catch (\Exception $e) {
             // Parse error response
             $xml = new SimpleXMLElement($client->__getLastResponse());
-            $xml->registerXPathNamespace('err', 'http://www.ups.com/schema/xpci/1.0/error');
+            if ($wsdl === 'DangerousGoodsUtility') {
+                $xml->registerXPathNamespace('err', 'http://www.ups.com/XMLSchema/XOLTWS/Error/v1.1');
+            }
+            else {
+                $xml->registerXPathNamespace('err', 'http://www.ups.com/schema/xpci/1.0/error');
+            }
             $errorCode = $xml->xpath('//err:PrimaryErrorCode/err:Code');
             $errorMsg = $xml->xpath('//err:PrimaryErrorCode/err:Description');
+
+            echo $client->__getLastRequest();
+            echo $client->__getLastResponse();
+            exit;
+
 
             if (isset($errorCode[0]) && isset($errorMsg[0])) {
                 $this->logger->alert($errorMsg[0], [

@@ -14,6 +14,16 @@ use Ups\NodeInterface;
 class Shipment implements NodeInterface
 {
 
+    const REGULATION_SET_ADR = 'ADR';
+    const REGULATION_SET_49CFR = '49CFR';
+    const REGULATION_SET_IATA = 'IATA';
+    const REGULATION_SET_TDG = 'TDG';
+
+    /**
+     * @var string
+     */
+    private $shipperNumber;
+
     /**
      * @var ShipToAddress
      */
@@ -53,6 +63,7 @@ class Shipment implements NodeInterface
         $node = $document->createElement('Shipment');
 
         // Then the required values
+        $node->appendChild($document->createElement('ShipperNumber', $this->getShipperNumber()));
         $node->appendChild($this->getShipFromAddress()->toNode($document));
         $node->appendChild($this->getShipToAddress()->toNode($document));
         $node->appendChild($this->getService()->toNode($document));
@@ -133,5 +144,45 @@ class Shipment implements NodeInterface
     public function setRegulationSet($regulationSet)
     {
         $this->regulationSet = $regulationSet;
+    }
+
+    /**
+     * @return array|Package[]
+     */
+    public function getPackages()
+    {
+        return $this->packages;
+    }
+
+    /**
+     * @param array|Package[] $packages
+     */
+    public function setPackages($packages)
+    {
+        $this->packages = $packages;
+    }
+
+    /**
+     * @param Package $package
+     */
+    public function addPackage(Package $package)
+    {
+        $this->packages[] = $package;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShipperNumber()
+    {
+        return $this->shipperNumber;
+    }
+
+    /**
+     * @param string $shipperNumber
+     */
+    public function setShipperNumber($shipperNumber)
+    {
+        $this->shipperNumber = $shipperNumber;
     }
 }

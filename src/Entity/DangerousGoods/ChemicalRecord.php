@@ -14,6 +14,11 @@ use Ups\NodeInterface;
 class ChemicalRecord implements NodeInterface
 {
 
+    const COMMODITY_REGULATED_LEVEL_CODE_LIMITED_QUANTITY = 'LQ';
+    const COMMODITY_REGULATED_LEVEL_CODE_EXCEPTED_QUANTITY = 'EQ';
+    const COMMODITY_REGULATED_LEVEL_CODE_LIGHTLY_REGULATED = 'LR';
+    const COMMODITY_REGULATED_LEVEL_CODE_FULLY_REGULATED = 'FR';
+
     /**
      * @var string
      */
@@ -106,6 +111,11 @@ class ChemicalRecord implements NodeInterface
     private $allPackedInOneIndicator;
 
     /**
+     * @var string
+     */
+    private $chemicalRecordIdentifier;
+
+    /**
      * @param null|DOMDocument $document
      *
      * @return DOMElement
@@ -116,11 +126,11 @@ class ChemicalRecord implements NodeInterface
             $document = new DOMDocument();
         }
 
-        $node = $document->createElement('Shipment');
+        $node = $document->createElement('ChemicalRecord');
 
         // Then the required values
-        $node->appendChild($document->createElement('CommodityRegulatedLevelCode', $this->getCommodityRegulatedLevelCode));
-
+        $node->appendChild($document->createElement('CommodityRegulatedLevelCode', $this->getCommodityRegulatedLevelCode()));
+        $node->appendChild($document->createElement('ChemicalRecordIdentifier', $this->getChemicalRecordIdentifier()));
 
         // Then the optional values
         if ($this->getReportableQuantity() !== null) {
@@ -465,5 +475,21 @@ class ChemicalRecord implements NodeInterface
     public function setAllPackedInOneIndicator($allPackedInOneIndicator)
     {
         $this->allPackedInOneIndicator = $allPackedInOneIndicator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getChemicalRecordIdentifier()
+    {
+        return $this->chemicalRecordIdentifier;
+    }
+
+    /**
+     * @param string $chemicalRecordIdentifier
+     */
+    public function setChemicalRecordIdentifier($chemicalRecordIdentifier)
+    {
+        $this->chemicalRecordIdentifier = $chemicalRecordIdentifier;
     }
 }
